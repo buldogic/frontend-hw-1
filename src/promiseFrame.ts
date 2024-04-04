@@ -21,28 +21,53 @@ const promiseFrame = async <
   if (limit !== undefined && limit <= 0) {
     throw new Error('INVALID_ARGUMENT');
   }
-  type Func = () => Promise<unknown> | unknown;
-  type Chunk = Func[];
-
 
   const givenLimit = limit ?? functions.length;
 
-  const chunks: Chunk[] = [];
+  const tasks = functions.map((run, i) => ({
+    i,
+    run,
+  }));
 
-  for (let i = 0; i <= functions.length; i += givenLimit) {
-    chunks.push(functions.slice(i, i + givenLimit));
-  }
+  type Task = typeof tasks[number];
 
-  const results: unknown[][] = [];
+  const initialTasks = tasks.slice(0, givenLimit);
+  const waitingTasks = tasks.slice(givenLimit).reverse();
+  const results = new Array(tasks.length);
+  const runningTasks = new Set<number>();
 
-  for (const chunk of chunks) {
-    const chunkResults = await Promise.all(chunk.map((func) =>  func()));
-    results.push(chunkResults);
-    console.log(results.flat(1));
-  }
-  console.log(results.flat(1));
+  return new Promise((resolve, reject) => {
+    const runTask = (t: Task) => {
+      runningTasks.add(t.i);
 
-  return results.flat(1) as unknown as Promise<ResultsT[]>;
+      const promiseOrNot = t.run();
+
+      const promise =
+        promiseOrNot instanceof Promise
+          ? promiseOrNot
+          : Promise.resolve(promiseOrNot);
+
+      return promise
+        .then((result) => {
+          results[t.i] = result;
+          runningTasks.delete(t.i);
+
+          if (waitingTasks.length) {
+            const nextTask = waitingTasks.pop();
+            if (nextTask) {
+              runTask(nextTask);
+            }
+          }
+
+          if (!waitingTasks.length && runningTasks.size === 0) {
+            resolve(results);
+          }
+        })
+        .catch(reject);
+    };
+
+    initialTasks.forEach((t) => runTask(t));
+  });
 };
 
 export default promiseFrame;
