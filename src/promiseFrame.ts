@@ -18,17 +18,17 @@ const promiseFrame = async <
   if (!Array.isArray(functions)) {
     throw new Error('INVALID_ARGUMENT');
   }
-  if ( limit !== undefined && limit <= 0) {
+  if (limit !== undefined && limit <= 0) {
     throw new Error('INVALID_ARGUMENT');
   }
   type Func = () => Promise<unknown> | unknown;
   type Chunk = Func[];
 
+
   const givenLimit = limit ?? functions.length;
 
   const chunks: Chunk[] = [];
 
- 
   for (let i = 0; i <= functions.length; i += givenLimit) {
     chunks.push(functions.slice(i, i + givenLimit));
   }
@@ -36,13 +36,13 @@ const promiseFrame = async <
   const results: unknown[][] = [];
 
   for (const chunk of chunks) {
-    const chunkResults = await Promise.all(chunk.map((func) => func()));
+    const chunkResults = await Promise.all(chunk.map((func) =>  func()));
     results.push(chunkResults);
+    console.log(results.flat(1));
   }
+  console.log(results.flat(1));
 
-  
-
-  return results.flat(1) as unknown as Promise<ResultsT[]>
+  return results.flat(1) as unknown as Promise<ResultsT[]>;
 };
 
 export default promiseFrame;
