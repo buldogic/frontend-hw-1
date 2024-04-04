@@ -1,3 +1,7 @@
+Object.defineProperty(global, 'performance', {
+  writable: true,
+});
+
 const planEvent = (cb: unknown, ms: unknown) => {
   if (typeof cb !== 'function') throw new Error('INVALID_ARGUMENT');
   if (typeof ms !== 'number') throw new Error('INVALID_ARGUMENT');

@@ -1,3 +1,7 @@
+Object.defineProperty(global, 'performance', {
+  writable: true,
+});
+
 type FunctionType<T> = () => Promise<T> | T;
 
 // Получить из массива функций перечисление результатов их вызовов
