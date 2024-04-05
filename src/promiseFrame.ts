@@ -1,6 +1,6 @@
-Object.defineProperty(global, 'performance', {
-  writable: true,
-});
+// Object.defineProperty(global, 'performance', {
+//   writable: true,
+// });
 
 type FunctionType<T> = () => Promise<T> | T;
 

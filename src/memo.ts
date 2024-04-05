@@ -1,6 +1,6 @@
-Object.defineProperty(global, 'performance', {
-  writable: true,
-});
+// Object.defineProperty(global, 'performance', {
+//   writable: true,
+// });
 
 const memo = <T extends (...args: any[]) => any>(
   func: T,
